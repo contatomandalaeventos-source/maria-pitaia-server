@@ -1,6 +1,6 @@
 {
   "name": "maria-pitaia-server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CRM + E-commerce + WhatsApp Integration para Maria Pitaia Criações",
   "main": "server.js",
   "scripts": {
