@@ -1,0 +1,80 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║              🚨 SOLUÇÃO RÁPIDA - UPLOAD DE 1 ARQUIVO                       ║
+║                                                                            ║
+║              Maria Pitaia Criações - Server Correction                     ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+O PROBLEMA:
+❌ server.js estava procurando arquivos nas pastas (config/, routes/, etc)
+❌ Mas os arquivos estão na raiz do repositório
+
+A SOLUÇÃO:
+✅ Corrigir o server.js para procurar os arquivos na raiz
+✅ Fazer upload de apenas 1 arquivo
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 PASSO 1: Abrir o GitHub
+──────────────────────────────────────────────────────────────────────────────
+
+Vá para: https://github.com/contatomandalaeventos-source/maria-pitaia-server
+
+
+📋 PASSO 2: Encontrar o arquivo server.js
+──────────────────────────────────────────────────────────────────────────────
+
+Na raiz do repositório, procure por "server.js"
+Clique nele para abrir
+
+
+📋 PASSO 3: Editar o arquivo
+──────────────────────────────────────────────────────────────────────────────
+
+No topo do arquivo, procure pelo ícone de LÁPIS ✏️
+Clique nele para editar
+
+
+📋 PASSO 4: Encontrar e Corrigir as 3 LINHAS
+──────────────────────────────────────────────────────────────────────────────
+
+Procure por (Ctrl+F):
+
+   ❌ LINHA 1 (procure por):  "./config/database"
+   ✅ MUDE PARA:  "./database"
+
+   ❌ LINHA 2 (procure por):  "./routes/webhooks"
+   ✅ MUDE PARA:  "./webhooks"
+
+   ❌ LINHA 3 (procure por):  "./routes/produtos"
+   ✅ MUDE PARA:  "./produtos"
+
+
+📋 PASSO 5: Salvar as mudanças
+──────────────────────────────────────────────────────────────────────────────
+
+No final da página, clique no botão VERDE: "Commit changes"
+Clique em "Commit"
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎉 PRONTO!
+
+A partir disso:
+  ⏳ Railway vai detectar a mudança (2-5 minutos)
+  🔨 Vai fazer rebuild do servidor
+  ✅ O servidor vai ficar ONLINE
+
+Então você poderá acessar:
+👉 https://maria-pitaia-server-production.up.railway.app/
+
+═══════════════════════════════════════════════════════════════════════════════
+
+❓ DÚVIDAS?
+
+Se não conseguir encontrar as linhas para editar, me chama!
+Estou aqui para ajudar 💚
+
+═══════════════════════════════════════════════════════════════════════════════
