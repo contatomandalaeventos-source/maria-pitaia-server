@@ -2,8 +2,8 @@
 // WEBHOOKS: Recebimento de dados de integrações externas
 // ============================================================
 
-const { pool } = require("../config/database");
-const whatsapp = require("../utils/whatsapp");
+const { pool } = require("./database");
+const whatsapp = require("./whatsapp");
 
 /**
  * Webhook da Evolution API (WhatsApp)
