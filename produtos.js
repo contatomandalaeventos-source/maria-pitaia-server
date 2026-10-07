@@ -2,8 +2,8 @@
 // ROTAS: Gerenciamento de Produtos Multi-Marketplace
 // ============================================================
 
-const { pool } = require("../config/database");
-const marketplaces = require("../utils/marketplaces");
+const { pool } = require("./database");
+const marketplaces = require("./marketplaces");
 
 /**
  * Listar todos os produtos com sincronização
