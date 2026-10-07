@@ -1,0 +1,37 @@
+🚀 COMANDOS PRONTOS PARA DEPLOY - MARIA PITAIA
+================================================
+
+PASSO 1: Ir para o diretório do projeto
+COPIE E COLE:
+cd /tmp/maria-pitaia-server
+
+PASSO 2: Adicionar o repositório GitHub como origem
+COPIE E COLE:
+git remote add origin https://github.com/contatomandalaeventos-source/maria-pitaia-server.git
+
+PASSO 3: Renomear branch para 'main' (Railway prefere)
+COPIE E COLE:
+git branch -M main
+
+PASSO 4: Fazer push de tudo para GitHub
+COPIE E COLE:
+git push -u origin main
+
+================================================
+
+PRONTO! Seu código estará no GitHub em:
+https://github.com/contatomandalaeventos-source/maria-pitaia-server
+
+================================================
+
+APÓS ISSO, VÁ PARA RAILWAY:
+https://railway.app/dashboard
+
+1. Clique: New Project
+2. Selecione: Deploy from GitHub
+3. Selecione: maria-pitaia-server
+4. Clique: Deploy
+
+Railway faz o resto automaticamente! ✅
+
+================================================

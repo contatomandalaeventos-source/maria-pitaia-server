@@ -1,0 +1,323 @@
+{
+  "description": "Workflows de automação para Maria Pitaia Criações",
+  "workflows": [
+    {
+      "id": "sync_mercado_livre",
+      "name": "Sincronizar Pedidos Mercado Livre",
+      "trigger": "schedule",
+      "schedule": "every 30 minutes",
+      "description": "Busca novos pedidos do Mercado Livre a cada 30 minutos",
+      "steps": [
+        {
+          "type": "trigger",
+          "node": "schedule",
+          "config": {
+            "interval": 30,
+            "unit": "minutes"
+          }
+        },
+        {
+          "type": "api",
+          "node": "HTTP Request",
+          "config": {
+            "method": "GET",
+            "url": "http://localhost:3000/webhook/mercado-livre/fetch"
+          }
+        },
+        {
+          "type": "database",
+          "node": "Postgres",
+          "config": {
+            "operation": "insert",
+            "table": "pedidos",
+            "fields": [
+              "empresa_id",
+              "numero_pedido",
+              "plataforma",
+              "valor_total",
+              "status",
+              "criado_em"
+            ]
+          }
+        },
+        {
+          "type": "notification",
+          "node": "Send Email",
+          "config": {
+            "to": "contato@mariapitaia.com.br",
+            "subject": "🛒 Novo pedido sincronizado do Mercado Livre"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sync_shopee",
+      "name": "Sincronizar Pedidos Shopee",
+      "trigger": "schedule",
+      "schedule": "every 30 minutes",
+      "description": "Busca novos pedidos da Shopee a cada 30 minutos",
+      "steps": [
+        {
+          "type": "trigger",
+          "node": "schedule",
+          "config": {
+            "interval": 30,
+            "unit": "minutes"
+          }
+        },
+        {
+          "type": "api",
+          "node": "HTTP Request",
+          "config": {
+            "method": "GET",
+            "url": "http://localhost:3000/webhook/shopee/fetch"
+          }
+        },
+        {
+          "type": "database",
+          "node": "Postgres",
+          "config": {
+            "operation": "insert",
+            "table": "pedidos"
+          }
+        }
+      ]
+    },
+    {
+      "id": "whatsapp_confirmacao_pedido",
+      "name": "Enviar Confirmação via WhatsApp",
+      "trigger": "webhook",
+      "webhook_path": "/n8n/pedido-novo",
+      "description": "Envia confirmação de pedido via WhatsApp quando pedido é criado",
+      "steps": [
+        {
+          "type": "trigger",
+          "node": "webhook",
+          "config": {
+            "method": "POST",
+            "path": "/n8n/pedido-novo"
+          }
+        },
+        {
+          "type": "database",
+          "node": "Postgres",
+          "config": {
+            "operation": "select",
+            "table": "clientes",
+            "where": "id = {{ $trigger.body.cliente_id }}"
+          }
+        },
+        {
+          "type": "http",
+          "node": "HTTP Request",
+          "config": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/whatsapp/enviar",
+            "body": {
+              "numero": "{{ $node.Postgres.data[0].whatsapp }}",
+              "mensagem": "🎉 Seu pedido #{{ $trigger.body.numero_pedido }} foi confirmado! Total: R$ {{ $trigger.body.valor_total }}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "lead_follow_up",
+      "name": "Follow-up de Leads",
+      "trigger": "schedule",
+      "schedule": "daily at 09:00",
+      "description": "Envia mensagem de follow-up para leads após 24 horas",
+      "steps": [
+        {
+          "type": "trigger",
+          "node": "schedule",
+          "config": {
+            "time": "09:00",
+            "unit": "day"
+          }
+        },
+        {
+          "type": "database",
+          "node": "Postgres",
+          "config": {
+            "operation": "select",
+            "table": "leads",
+            "where": "status = 'novo' AND criado_em < NOW() - INTERVAL '1 day'",
+            "limit": 50
+          }
+        },
+        {
+          "type": "loop",
+          "node": "Loop",
+          "config": {
+            "iterate": "{{ $node.Postgres.data }}"
+          },
+          "steps": [
+            {
+              "type": "http",
+              "node": "HTTP Request",
+              "config": {
+                "method": "POST",
+                "url": "http://localhost:3000/api/whatsapp/enviar",
+                "body": {
+                  "numero": "{{ $item.whatsapp }}",
+                  "mensagem": "Olá {{ $item.nome }}! 👋\n\nTudo bem? Gostaria de conhecer melhor nossos produtos de artesanato! 🌿\n\nEscolha um de nossos produtos:\nhttps://linkdocatalogo.com.br\n\nQualquer dúvida, é só chamar! 💚"
+                }
+              }
+            },
+            {
+              "type": "database",
+              "node": "Postgres",
+              "config": {
+                "operation": "update",
+                "table": "leads",
+                "where": "id = {{ $item.id }}",
+                "set": "status = 'em_contato'"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "relatorio_diario",
+      "name": "Relatório Diário de Vendas",
+      "trigger": "schedule",
+      "schedule": "daily at 18:00",
+      "description": "Envia relatório diário de vendas por email",
+      "steps": [
+        {
+          "type": "trigger",
+          "node": "schedule",
+          "config": {
+            "time": "18:00",
+            "unit": "day"
+          }
+        },
+        {
+          "type": "database",
+          "node": "Postgres",
+          "config": {
+            "operation": "select",
+            "table": "pedidos",
+            "where": "DATE(criado_em) = CURRENT_DATE"
+          }
+        },
+        {
+          "type": "code",
+          "node": "Function",
+          "config": {
+            "code": "const pedidos = $node.Postgres.data;\nconst total = pedidos.reduce((acc, p) => acc + parseFloat(p.valor_total), 0);\nconst quantidade = pedidos.length;\nreturn {\n  quantidade,\n  total: total.toFixed(2),\n  pedidos\n};"
+          }
+        },
+        {
+          "type": "email",
+          "node": "Send Email",
+          "config": {
+            "to": "contato@mariapitaia.com.br",
+            "subject": "📊 Relatório de Vendas - {{ now.toLocaleDateString('pt-BR') }}",
+            "html": "<h2>Vendas de Hoje</h2><p>Total de pedidos: {{ $node.Function.data.quantidade }}</p><p>Faturamento: R$ {{ $node.Function.data.total }}</p>"
+          }
+        }
+      ]
+    },
+    {
+      "id": "produto_baixo_estoque",
+      "name": "Alerta de Estoque Baixo",
+      "trigger": "webhook",
+      "webhook_path": "/n8n/verificar-estoque",
+      "description": "Alerta quando produto tem estoque abaixo do mínimo",
+      "steps": [
+        {
+          "type": "trigger",
+          "node": "webhook",
+          "config": {
+            "method": "POST"
+          }
+        },
+        {
+          "type": "database",
+          "node": "Postgres",
+          "config": {
+            "operation": "select",
+            "table": "produtos",
+            "where": "estoque < 5 AND ativo = TRUE"
+          }
+        },
+        {
+          "type": "condition",
+          "node": "If",
+          "config": {
+            "condition": "{{ $node.Postgres.data.length > 0 }}"
+          },
+          "true": [
+            {
+              "type": "email",
+              "node": "Send Email",
+              "config": {
+                "to": "contato@mariapitaia.com.br",
+                "subject": "⚠️ Produtos com Estoque Baixo!",
+                "body": "Os seguintes produtos têm estoque baixo:\n\n{{ $node.Postgres.data.map(p => `- ${p.nome}: ${p.estoque} unidades`).join('\\n') }}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vendedora_ia",
+      "name": "Vendedora IA - Resposta Automática",
+      "trigger": "webhook",
+      "webhook_path": "/n8n/vendedora-ia",
+      "description": "Assistente de IA que responde mensagens de clientes",
+      "steps": [
+        {
+          "type": "trigger",
+          "node": "webhook",
+          "config": {
+            "method": "POST"
+          }
+        },
+        {
+          "type": "http",
+          "node": "HTTP Request",
+          "config": {
+            "method": "POST",
+            "url": "https://api.openai.com/v1/chat/completions",
+            "headers": {
+              "Authorization": "Bearer {{ $env.OPENAI_API_KEY }}"
+            },
+            "body": {
+              "model": "gpt-4",
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "Você é a Vendedora IA da Maria Pitaia Criações, especializada em artesanato e bijuteria boho chic. Responda sempre em português, com tom amigável e inspirador. Use emojis como 🌿, 💚, ✨. Seja breve e direto nas respostas."
+                },
+                {
+                  "role": "user",
+                  "content": "{{ $trigger.body.mensagem }}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "http",
+          "node": "HTTP Request",
+          "config": {
+            "method": "POST",
+            "url": "http://localhost:3000/api/whatsapp/enviar",
+            "body": {
+              "numero": "{{ $trigger.body.numero }}",
+              "mensagem": "{{ $node['HTTP Request'].data.choices[0].message.content }}"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "setup_instructions": {
+    "pt-BR": "Importe estes workflows no n8n. Configure as credenciais necessárias para cada integração."
+  }
+}
