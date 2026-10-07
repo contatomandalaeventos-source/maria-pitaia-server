@@ -11,7 +11,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
-const { pool, inicializarBancoDados, testarConexao } = require("./config/database");
+const { pool, inicializarBancoDados, testarConexao } = require("./database");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,8 +26,8 @@ app.use(express.static(path.join(__dirname, "public")));
 let bancoPronto = false;
 
 // ========== IMPORTAR ROTAS ==========
-const webhooks = require("./routes/webhooks");
-const produtosRoutes = require("./routes/produtos");
+const webhooks = require("./webhooks");
+const produtosRoutes = require("./produtos");
 
 // ========== INICIALIZAÇÃO DO BANCO ==========
 async function iniciar() {
