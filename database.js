@@ -194,6 +194,20 @@ CREATE TABLE IF NOT EXISTS financeiro (
   criado_em TIMESTAMP DEFAULT NOW()
 );
 
+-- ====== INTEGRAÇÕES (tokens dos marketplaces) ======
+CREATE TABLE IF NOT EXISTS integracoes (
+  id SERIAL PRIMARY KEY,
+  empresa_id INTEGER NOT NULL REFERENCES empresas(id) ON DELETE CASCADE,
+  plataforma TEXT NOT NULL,
+  access_token TEXT,
+  refresh_token TEXT,
+  expira_em TIMESTAMP,
+  conta_externa_id TEXT,
+  criado_em TIMESTAMP DEFAULT NOW(),
+  atualizado_em TIMESTAMP DEFAULT NOW(),
+  UNIQUE (empresa_id, plataforma)
+);
+
 CREATE INDEX IF NOT EXISTS idx_financeiro_empresa ON financeiro(empresa_id);
 CREATE INDEX IF NOT EXISTS idx_financeiro_pedido ON financeiro(pedido_id);
 CREATE INDEX IF NOT EXISTS idx_financeiro_data ON financeiro(data_transacao);

@@ -28,6 +28,7 @@ let bancoPronto = false;
 // ========== IMPORTAR ROTAS ==========
 const webhooks = require("./webhooks");
 const produtosRoutes = require("./produtos");
+const mercadoLivre = require("./mercadolivre");
 
 // ========== INICIALIZAÇÃO DO BANCO ==========
 async function iniciar() {
@@ -285,6 +286,62 @@ app.post("/api/empresas/:empresa_id/leads", async (req, res) => {
       [req.params.empresa_id, nome, whatsapp, email, origem, interesse]
     );
     res.status(201).json(resultado.rows[0]);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+// ========== MERCADO LIVRE: CONEXÃO ==========
+
+// Abre a tela de autorização do Mercado Livre
+app.get("/api/ml/conectar", (req, res) => {
+  if (!mercadoLivre.configurado()) {
+    return res.status(400).json({
+      erro: "Faltam ML_CLIENT_ID e ML_CLIENT_SECRET nas variáveis do Railway."
+    });
+  }
+  res.redirect(mercadoLivre.urlAutorizacao(req.query.empresa_id || 1));
+});
+
+// O Mercado Livre devolve o usuário para cá depois de autorizar
+app.get("/callback/ml", async (req, res) => {
+  const { code, state, error } = req.query;
+
+  if (error || !code) {
+    return res.status(400).send(
+      `<h2>Autorização não concluída</h2><p>${error || "O Mercado Livre não enviou o código."}</p>`
+    );
+  }
+
+  try {
+    await mercadoLivre.trocarCodigoPorToken(code, Number(state) || 1);
+    res.send(`
+      <html><head><meta charset="utf-8"><title>Mercado Livre conectado</title></head>
+      <body style="font-family:system-ui;background:#F5E9DC;color:#4A3B2F;padding:60px;text-align:center">
+        <h2>Mercado Livre conectado</h2>
+        <p>Já pode publicar as peças pelo painel.</p>
+        <p><a href="/produtos.html" style="color:#8C4A15">Ir para os produtos</a></p>
+      </body></html>
+    `);
+  } catch (err) {
+    const detalhe = err.response?.data?.message || err.message;
+    res.status(500).send(`<h2>Erro ao conectar</h2><pre>${detalhe}</pre>`);
+  }
+});
+
+// Situação da conexão
+app.get("/api/ml/status", async (req, res) => {
+  try {
+    res.json(await mercadoLivre.status(req.query.empresa_id || 1));
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
+
+// Pedidos vindos do Mercado Livre
+app.get("/api/ml/pedidos", async (req, res) => {
+  try {
+    res.json(await mercadoLivre.obterPedidos(req.query.empresa_id || 1));
   } catch (err) {
     res.status(500).json({ erro: err.message });
   }

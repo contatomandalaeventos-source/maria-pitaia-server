@@ -4,6 +4,7 @@
 
 const { pool } = require("./database");
 const marketplaces = require("./marketplaces");
+const mercadoLivre = require("./mercadolivre");
 
 /**
  * Listar todos os produtos com sincronização
@@ -262,70 +263,32 @@ async function sincronizarEstoque(req, res) {
  */
 
 async function publicarMercadoLivre(produto) {
-  try {
-    console.log(`📤 Publicando ${produto.nome} no Mercado Livre...`);
-    // Chamaria ML API aqui
-    return {
-      id: `ML-${produto.id}`,
-      url: `https://mercadolivre.com.br/items/${produto.sku}`
-    };
-  } catch (err) {
-    console.error("❌ Erro publicar ML:", err.message);
-    throw err;
-  }
+  console.log(`📤 Publicando ${produto.nome} no Mercado Livre...`);
+  return mercadoLivre.publicarProduto(produto, produto.empresa_id || 1);
 }
 
 async function publicarShopee(produto) {
-  try {
-    console.log(`📤 Publicando ${produto.nome} na Shopee...`);
-    // Chamaria Shopee API aqui
-    return {
-      id: `SHOPEE-${produto.id}`,
-      url: `https://shopee.com.br/product/${produto.sku}`
-    };
-  } catch (err) {
-    console.error("❌ Erro publicar Shopee:", err.message);
-    throw err;
-  }
+  // Ainda nao integrado: a Shopee exige cadastro de parceiro e aprovacao.
+  // Antes isso devolvia um link falso, dando a impressao de que havia publicado.
+  throw new Error("Shopee ainda nao esta conectada. Nenhum anuncio foi criado.");
 }
 
 async function publicarTikTokShop(produto) {
-  try {
-    console.log(`📤 Publicando ${produto.nome} no TikTok Shop...`);
-    return {
-      id: `TIKTOK-${produto.id}`,
-      url: `https://tiktokshop.com/product/${produto.sku}`
-    };
-  } catch (err) {
-    console.error("❌ Erro publicar TikTok:", err.message);
-    throw err;
-  }
+  // Ainda nao integrado: a TikTok Shop exige cadastro de parceiro e aprovacao.
+  // Antes isso devolvia um link falso, dando a impressao de que havia publicado.
+  throw new Error("TikTok Shop ainda nao esta conectada. Nenhum anuncio foi criado.");
 }
 
 async function publicarMagalu(produto) {
-  try {
-    console.log(`📤 Publicando ${produto.nome} no Magalu...`);
-    return {
-      id: `MAGALU-${produto.id}`,
-      url: `https://magalu.com.br/product/${produto.sku}`
-    };
-  } catch (err) {
-    console.error("❌ Erro publicar Magalu:", err.message);
-    throw err;
-  }
+  // Ainda nao integrado: a Magalu exige cadastro de parceiro e aprovacao.
+  // Antes isso devolvia um link falso, dando a impressao de que havia publicado.
+  throw new Error("Magalu ainda nao esta conectada. Nenhum anuncio foi criado.");
 }
 
 async function publicarAmazon(produto) {
-  try {
-    console.log(`📤 Publicando ${produto.nome} na Amazon...`);
-    return {
-      id: `AMAZON-${produto.id}`,
-      url: `https://amazon.com.br/product/${produto.sku}`
-    };
-  } catch (err) {
-    console.error("❌ Erro publicar Amazon:", err.message);
-    throw err;
-  }
+  // Ainda nao integrado: a Amazon exige cadastro de parceiro e aprovacao.
+  // Antes isso devolvia um link falso, dando a impressao de que havia publicado.
+  throw new Error("Amazon ainda nao esta conectada. Nenhum anuncio foi criado.");
 }
 
 /**
