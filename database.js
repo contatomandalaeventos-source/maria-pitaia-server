@@ -225,6 +225,18 @@ async function inicializarBancoDados() {
     }
 
     console.log("✅ Schema do banco de dados pronto");
+
+    // A empresa id=1 precisa existir: os paineis consultam /api/empresas/1/...
+    await pool.query(`
+      INSERT INTO empresas (nome, cnpj, email, whatsapp, endereco, cidade, estado, cep, site, descricao)
+      VALUES ('Maria Pitaia Criacoes', '22.845.669/0001-17', 'contato@mariapitaia.com.br',
+              '5511985264683', 'Rua Antonio Canero, 28 - Mooca', 'Sao Paulo', 'SP', '03190-140',
+              'https://www.mariapitaia.com.br',
+              'Bijuterias, bordados e decoracao feitos a mao, em pequenas quantidades.')
+      ON CONFLICT (nome) DO NOTHING
+    `);
+    console.log("✅ Empresa Maria Pitaia Criações pronta");
+
     return true;
   } catch (err) {
     console.error("❌ Erro crítico ao inicializar banco:", err.message);
