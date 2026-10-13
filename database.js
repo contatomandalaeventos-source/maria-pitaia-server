@@ -7,11 +7,15 @@
 
 const { Pool } = require("pg");
 
+const urlBanco = process.env.DATABASE_URL || "";
+
+// Rede interna do Railway e banco local nao usam SSL.
+// Bancos externos (Supabase, Neon, Render) usam.
+const semSsl = /localhost|127\.0\.0\.1|\.railway\.internal|sslmode=disable/.test(urlBanco);
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: /localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL || "")
-    ? false
-    : { rejectUnauthorized: false }
+  connectionString: urlBanco,
+  ssl: semSsl ? false : { rejectUnauthorized: false }
 });
 
 // REDE DE SEGURANÇA: erros de conexão não derrubam o servidor
