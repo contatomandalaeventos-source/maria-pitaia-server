@@ -140,6 +140,19 @@ async function rodar() {
     const skus = await importarPecas();
     const reg = await ml.tokenValido(EMPRESA);
     log(`Conta do Mercado Livre: ${reg.conta_externa_id}`);
+    try {
+      const h = { headers: { Authorization: `Bearer ${reg.access_token}` } };
+      const eu = (await axios.get(`${API}/users/me`, h)).data;
+      log(`Apelido da conta: ${eu.nickname} · tipo: ${eu.user_type} · status: ${JSON.stringify(eu.status || {}).slice(0, 300)}`);
+      const pref = (await axios.get(`${API}/users/${eu.id}/shipping_preferences`, h)).data;
+      log(`Envio da conta: ${JSON.stringify(pref).slice(0, 800)}`);
+      const itens = (await axios.get(`${API}/users/${eu.id}/items/search`, h)).data;
+      log(`Anúncios já existentes: ${JSON.stringify(itens.results || [])}`);
+      for (const id of (itens.results || []).slice(0, 2)) {
+        const it = (await axios.get(`${API}/items/${id}`, h)).data;
+        log(`Anúncio ${id}: ${it.title} · envio ${JSON.stringify(it.shipping).slice(0, 300)}`);
+      }
+    } catch (e) { log("Diagnóstico falhou:", erroML(e)); }
 
     const categoria = process.env.ML_CATEGORIA || await preverCategoria();
     log(`Categoria usada: ${categoria}`);
