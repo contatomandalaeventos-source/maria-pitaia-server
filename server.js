@@ -177,11 +177,12 @@ app.get("/api/empresas/:empresa_id/pedidos", async (req, res) => {
 
   try {
     const resultado = await pool.query(
-      `SELECT p.*, c.nome as cliente_nome, c.whatsapp
+      `SELECT p.*, c.nome as cliente_nome, c.whatsapp,
+              (SELECT string_agg(i.nome_produto, ', ') FROM itens_pedido i WHERE i.pedido_id = p.id) AS itens_nomes
        FROM pedidos p
        LEFT JOIN clientes c ON p.cliente_id = c.id
        WHERE p.empresa_id = $1
-       ORDER BY p.criado_em DESC`,
+       ORDER BY COALESCE(p.data_pedido, p.criado_em) DESC`,
       [req.params.empresa_id]
     );
     res.json(resultado.rows);

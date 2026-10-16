@@ -252,7 +252,7 @@
             <th>Nome</th>
             <th>WhatsApp</th>
             <th>Email</th>
-            <th>Último Pedido</th>
+            <th>Origem</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -339,7 +339,7 @@
             <td>${c.nome}</td>
             <td>${c.whatsapp || '-'}</td>
             <td>${c.email || '-'}</td>
-            <td>-</td>
+            <td>${c.plataforma_vendas || c.origem || '-'}</td>
             <td><button class="btn btn-small">Ver</button></td>
           </tr>
         `).join('');
@@ -350,11 +350,11 @@
         // Lista pedidos
         const pedidosTr = pedidos.slice(0, 10).map(p => `
           <tr>
-            <td>${p.numero_pedido}</td>
+            <td>${p.numero_pedido}<br><small style="color:#888">${p.plataforma || ''}${p.itens_nomes ? ' · ' + p.itens_nomes : ''}</small></td>
             <td>${p.cliente_nome || 'Cliente'}</td>
             <td>R$ ${parseFloat(p.valor_total).toFixed(2)}</td>
             <td><span class="status-${p.status}">${p.status}</span></td>
-            <td>${new Date(p.criado_em).toLocaleDateString('pt-BR')}</td>
+            <td>${new Date(p.data_pedido || p.criado_em).toLocaleDateString('pt-BR')}</td>
             <td><button class="btn btn-small">Ver</button></td>
           </tr>
         `).join('');
@@ -363,7 +363,7 @@
           '<tr><td colspan="6">Nenhum pedido registrado</td></tr>';
 
         document.getElementById('pedidosHoje').textContent =
-          pedidos?.filter(p => new Date(p.criado_em).toDateString() === new Date().toDateString())?.length || 0;
+          pedidos?.filter(p => new Date(p.data_pedido || p.criado_em).toDateString() === new Date().toDateString())?.length || 0;
 
       } catch (err) {
         console.error('Erro ao carregar dashboard:', err);
