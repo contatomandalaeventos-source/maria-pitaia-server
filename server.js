@@ -52,6 +52,9 @@ async function iniciar() {
 
     // Lote do Mercado Livre (só roda se ML_LOTE estiver definida no Railway)
     require("./lote-ml").rodar();
+
+    // Aviso de venda por e-mail (confere o Mercado Livre a cada 5 minutos)
+    require("./avisos").iniciar();
   } catch (err) {
     console.error("❌ Erro na inicialização:", err.message);
     console.error("⏳ Tentando novamente em 5 segundos...");
