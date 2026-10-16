@@ -25,7 +25,7 @@ function logado(req) {
   if (!SENHA) return true; // sem senha configurada, painel aberto
   return lerCookie(req) === assinatura();
 }
-const LIVRES = [/^\/health/, /^\/callback\//, /^\/webhook\//, /^\/login\.html/, /^\/api\/login/, /^\/painel\.css/, /^\/favicon/];
+const LIVRES = [/^\/health/, /^\/callback\//, /^\/webhook\//, /^\/login\.html/, /^\/api\/login/, /^\/painel\.css/, /^\/favicon/, /^\/app\.webmanifest/, /^\/icone-mp-/];
 
 function protecao(req, res, next) {
   if (LIVRES.some(r => r.test(req.path))) return next();
