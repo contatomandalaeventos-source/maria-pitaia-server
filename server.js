@@ -49,6 +49,9 @@ async function iniciar() {
     bancoPronto = true;
 
     console.log("✅ Sistema pronto!\n");
+
+    // Lote do Mercado Livre (só roda se ML_LOTE estiver definida no Railway)
+    require("./lote-ml").rodar();
   } catch (err) {
     console.error("❌ Erro na inicialização:", err.message);
     console.error("⏳ Tentando novamente em 5 segundos...");
