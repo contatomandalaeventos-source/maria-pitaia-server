@@ -20,6 +20,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+// Painel: login por senha e rotas das telas (antes dos arquivos públicos)
+require("./painel").registrar(app);
 app.use(express.static(path.join(__dirname, "public")));
 
 // ========== VARIÁVEL DE CONTROLE ==========

@@ -1,403 +1,147 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CRM - Maria Pitaia Criações</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f5e6d3 0%, #e8d4c0 100%);
-      color: #333;
-      min-height: 100vh;
-    }
-
-    header {
-      background: linear-gradient(135deg, #8b6f47 0%, #6b5536 100%);
-      color: white;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    header h1 {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 24px;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 30px auto;
-      padding: 0 20px;
-    }
-
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-      border-left: 4px solid #8b6f47;
-    }
-
-    .card h3 {
-      color: #8b6f47;
-      margin-bottom: 10px;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .card .value {
-      font-size: 32px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .card .subtitle {
-      font-size: 12px;
-      color: #999;
-      margin-top: 5px;
-    }
-
-    .section {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-
-    .section h2 {
-      color: #8b6f47;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #e8d4c0;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th {
-      background: #f5e6d3;
-      padding: 10px;
-      text-align: left;
-      color: #8b6f47;
-      font-weight: 600;
-      border-bottom: 2px solid #e8d4c0;
-    }
-
-    td {
-      padding: 12px 10px;
-      border-bottom: 1px solid #e8d4c0;
-    }
-
-    tr:hover {
-      background: #faf7f2;
-    }
-
-    .btn {
-      background: #8b6f47;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s;
-    }
-
-    .btn:hover {
-      background: #6b5536;
-    }
-
-    .btn-small {
-      padding: 5px 10px;
-      font-size: 12px;
-    }
-
-    .status-novo {
-      background: #e3f2fd;
-      color: #1976d2;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-
-    .status-confirmado {
-      background: #e8f5e9;
-      color: #388e3c;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-
-    .status-enviado {
-      background: #fff3e0;
-      color: #f57c00;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: #8b6f47;
-      font-weight: 600;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #e8d4c0;
-      border-radius: 5px;
-      font-family: inherit;
-      font-size: 14px;
-    }
-
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: #8b6f47;
-      box-shadow: 0 0 5px rgba(139, 111, 71, 0.3);
-    }
-
-    .loading {
-      text-align: center;
-      padding: 20px;
-      color: #999;
-    }
-
-    .error {
-      background: #ffebee;
-      color: #c62828;
-      padding: 15px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-    }
-
-    .success {
-      background: #e8f5e9;
-      color: #2e7d32;
-      padding: 15px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: #999;
-      font-size: 12px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maria Pitaia — Painel</title>
+<meta name="theme-color" content="#F9F1EB">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/painel.css">
+<style>
+.hero{position:relative;padding:30px 20px 26px;text-align:center;background:#fff;border-bottom:1px solid var(--line);overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 50% -10%,rgba(194,122,69,.12) 0%,rgba(194,122,69,0) 60%);pointer-events:none}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;opacity:.6;background:linear-gradient(90deg,transparent,var(--terra) 30%,#E3A77E 50%,var(--terra) 70%,transparent)}
+.ola{position:relative;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.16em;color:var(--terra);text-transform:uppercase;margin-bottom:12px}
+.logo{position:relative;width:min(300px,72vw);display:block;margin:0 auto}
+.logo-txt{position:relative;font-family:'Barlow Condensed',sans-serif;font-size:42px;color:var(--terra)}
+.chips{position:relative;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid var(--line);border-radius:40px;background:#fff;box-shadow:var(--shadow);font-size:13.5px;font-weight:600;color:var(--dim)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--faint)}
+.dot.on{background:var(--verde);box-shadow:0 0 0 4px rgba(47,143,91,.16)}
+.dot.esp{background:var(--ambar);box-shadow:0 0 0 4px rgba(185,129,31,.16)}
+.dot.off{background:#C9B8A8}
+.sec{margin-bottom:30px}
+.sec-h{display:flex;align-items:baseline;gap:14px;margin-bottom:12px}
+.sec-h h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:21px;white-space:nowrap}
+.sec-h .rule{flex:1;height:1px;background:var(--line)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:840px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+.tile{position:relative;display:flex;gap:14px;align-items:flex-start;padding:18px;background:#fff;border:1px solid var(--line);border-radius:14px;text-decoration:none;color:inherit;overflow:hidden;box-shadow:var(--shadow);transition:transform .18s ease,box-shadow .18s ease}
+.tile::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:3px;background:var(--grad);opacity:0;transition:opacity .18s ease,top .18s ease,bottom .18s ease}
+.tile:hover{transform:translateY(-3px);box-shadow:0 4px 10px rgba(63,42,29,.06),0 16px 30px rgba(63,42,29,.1)}
+.tile:hover::before{opacity:1;top:0;bottom:0}
+.tile.breve{opacity:.62}
+.tile.breve:hover{transform:none}
+.ico{flex:none;width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff}
+.ico svg{width:21px;height:21px}
+.s-vendas .ico{background:linear-gradient(135deg,#C27A45,#8C4A15);box-shadow:0 4px 10px rgba(140,74,21,.28)}
+.s-canais .ico{background:linear-gradient(135deg,#E08A9C,#C2566F);box-shadow:0 4px 10px rgba(194,86,111,.25)}
+.s-atend .ico{background:linear-gradient(135deg,#9AA06A,#6F7445);box-shadow:0 4px 10px rgba(111,116,69,.25)}
+.t-txt h3{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;line-height:1.2;margin-bottom:3px}
+.t-txt p{font-size:13.5px;color:var(--dim);line-height:1.4}
+.tag{display:inline-block;margin-left:6px;font:700 10.5px 'Barlow',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:var(--cinza-bg);color:var(--faint);vertical-align:middle}
+footer{border-top:1px solid var(--line);padding:22px;text-align:center;font-size:13px;color:var(--dim)}
+footer button{background:none;border:0;color:var(--terra);font:600 13px 'Barlow',sans-serif;cursor:pointer;margin-left:8px}
+</style>
 </head>
 <body>
-  <header>
-    <h1>🌿 Maria Pitaia Criações</h1>
-    <div style="margin-top: 10px;">
-      <a href="/" style="color: white; text-decoration: none; margin-right: 20px;">📊 Dashboard</a>
-      <a href="/produtos.html" style="color: white; text-decoration: none;">📦 Produtos</a>
-    </div>
-  </header>
 
-  <div class="container">
-    <div class="dashboard" id="dashboard">
-      <div class="card">
-        <h3>Clientes Totais</h3>
-        <div class="value" id="totalClientes">-</div>
-        <div class="subtitle">Cadastrados no CRM</div>
-      </div>
-      <div class="card">
-        <h3>Pedidos Hoje</h3>
-        <div class="value" id="pedidosHoje">-</div>
-        <div class="subtitle">Em processamento</div>
-      </div>
-      <div class="card">
-        <h3>Leads Novos</h3>
-        <div class="value" id="leadsNovos">-</div>
-        <div class="subtitle">Últimos 7 dias</div>
-      </div>
-      <div class="card">
-        <h3>Faturamento</h3>
-        <div class="value" id="faturamentoTotal">-</div>
-        <div class="subtitle">Este mês</div>
-      </div>
-    </div>
+<header class="hero">
+  <div class="ola" id="ola">Olá</div>
+  <img class="logo" id="logo" src="https://www.mariapitaia.com.br/imagens/logo.webp" alt="Maria Pitaia Criações"
+       onerror="this.outerHTML='<div class=&quot;logo-txt cond&quot;>Maria Pitaia</div>'">
+  <div class="chips">
+    <span class="chip"><span class="dot" id="dML"></span><span id="tML">Mercado Livre…</span></span>
+    <span class="chip"><span class="dot esp"></span>TikTok Shop · em análise</span>
+    <span class="chip"><span class="dot on"></span>Site no ar</span>
+  </div>
+</header>
 
-    <div class="section">
-      <h2>📋 Últimos Clientes</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>WhatsApp</th>
-            <th>Email</th>
-            <th>Origem</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="clientesList">
-          <tr>
-            <td colspan="5" class="loading">Carregando clientes...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="section">
-      <h2>🛒 Pedidos Recentes</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Pedido</th>
-            <th>Cliente</th>
-            <th>Valor</th>
-            <th>Status</th>
-            <th>Data</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="pedidosList">
-          <tr>
-            <td colspan="6" class="loading">Carregando pedidos...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="section">
-      <h2>➕ Novo Cliente</h2>
-      <form id="novoClienteForm">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-          <div class="form-group">
-            <label>Nome *</label>
-            <input type="text" name="nome" required>
-          </div>
-          <div class="form-group">
-            <label>WhatsApp *</label>
-            <input type="tel" name="whatsapp" placeholder="(11) 98526-4683" required>
-          </div>
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" name="email">
-          </div>
-          <div class="form-group">
-            <label>Origem</label>
-            <input type="text" name="origem" placeholder="Mercado Livre, TikTok, etc">
-          </div>
-        </div>
-        <button type="submit" class="btn">Adicionar Cliente</button>
-      </form>
-    </div>
+<main>
+  <div class="kpis">
+    <div class="kpi"><div class="r">Vendas no mês</div><div class="v" id="kV">-</div><div class="s" id="kVs">&nbsp;</div></div>
+    <div class="kpi"><div class="r">A enviar</div><div class="v" id="kE">-</div><div class="s">pedidos pagos</div></div>
+    <div class="kpi"><div class="r">Peças disponíveis</div><div class="v" id="kP">-</div><div class="s" id="kPs">&nbsp;</div></div>
+    <div class="kpi"><div class="r">Clientes</div><div class="v" id="kC">-</div><div class="s">que já compraram</div></div>
   </div>
 
-  <footer>
-    <p>🌿 Maria Pitaia Criações © 2024</p>
-    <p>Email: contato@mariapitaia.com.br | WhatsApp: (11) 98526-4683</p>
-  </footer>
+  <section class="sec s-vendas">
+    <div class="sec-h"><h2>Vendas</h2><span class="rule"></span></div>
+    <div class="grid">
+      <a class="tile" href="/pedidos.html">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></span>
+        <span class="t-txt"><h3>Pedidos</h3><p>Todas as vendas, de onde vieram e o que falta enviar</p></span>
+      </a>
+      <a class="tile" href="/pedidos.html#nova">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span>
+        <span class="t-txt"><h3>Registrar venda</h3><p>Venda do grupo, site ou WhatsApp. Já baixa o estoque</p></span>
+      </a>
+      <a class="tile" href="/pecas.html">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-2 3-5 5-5 9a5 5 0 0 0 10 0c0-4-3-6-5-9z"/><path d="M12 14v7"/></svg></span>
+        <span class="t-txt"><h3>Peças e estoque</h3><p>Fotos, preço e quantidade de cada brinco</p></span>
+      </a>
+      <a class="tile" href="/financeiro.html">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/></svg></span>
+        <span class="t-txt"><h3>Financeiro</h3><p>Entradas, saídas e o que falta receber</p></span>
+      </a>
+    </div>
+  </section>
 
-  <script>
-    const API_URL = window.location.origin;
-    const EMPRESA_ID = 1; // ID padrão de Maria Pitaia
+  <section class="sec s-canais">
+    <div class="sec-h"><h2>Canais de venda</h2><span class="rule"></span></div>
+    <div class="grid">
+      <a class="tile" href="https://vendedores.mercadolivre.com.br/anuncios" target="_blank" rel="noopener">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3-4 6-4 9-1s6 3 9-1"/><path d="M3 12c3 4 6 4 9 1"/></svg></span>
+        <span class="t-txt"><h3>Mercado Livre</h3><p>Anúncios e vendas. Aviso por e-mail ligado</p></span>
+      </a>
+      <a class="tile" href="https://seller-br.tiktok.com/" target="_blank" rel="noopener">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v11a4 4 0 1 1-4-4"/><path d="M14 3c.5 2.5 2.5 4 5 4"/></svg></span>
+        <span class="t-txt"><h3>TikTok Shop</h3><p>36 peças em análise <span class="tag">ligar ao sistema</span></p></span>
+      </a>
+      <a class="tile" href="https://www.mariapitaia.com.br" target="_blank" rel="noopener">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>
+        <span class="t-txt"><h3>Site</h3><p>mariapitaia.com.br · pedidos pelo WhatsApp</p></span>
+      </a>
+    </div>
+  </section>
 
-    // Carrega dashboard
-    async function carregarDashboard() {
-      try {
-        const [clientes, pedidos, leads] = await Promise.all([
-          fetch(`${API_URL}/api/empresas/${EMPRESA_ID}/clientes`).then(r => r.json()),
-          fetch(`${API_URL}/api/empresas/${EMPRESA_ID}/pedidos`).then(r => r.json()),
-          fetch(`${API_URL}/api/empresas/${EMPRESA_ID}/leads`).then(r => r.json())
-        ]);
+  <section class="sec s-atend">
+    <div class="sec-h"><h2>Atendimento</h2><span class="rule"></span></div>
+    <div class="grid">
+      <a class="tile" href="/clientes.html">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20"/><circle cx="10" cy="8" r="3.4"/><path d="M20 20v-1.5a3.5 3.5 0 0 0-2.6-3.4"/></svg></span>
+        <span class="t-txt"><h3>Clientes</h3><p>Quem comprou, por onde e o histórico</p></span>
+      </a>
+      <div class="tile breve">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.9 8.9 0 0 1-3.9-.9L3 20.5l1.6-4.9A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4z"/></svg></span>
+        <span class="t-txt"><h3>Conversas <span class="tag">em breve</span></h3><p>WhatsApp da Maria Pitaia dentro do painel</p></span>
+      </div>
+    </div>
+  </section>
+</main>
 
-        // Atualiza cards
-        document.getElementById('totalClientes').textContent = clientes?.length || 0;
-        document.getElementById('leadsNovos').textContent = leads?.filter(l => l.status === 'novo')?.length || 0;
+<footer>Maria Pitaia Criações · Painel de vendas <button onclick="sair()">Sair</button></footer>
 
-        // Lista clientes
-        const clientesTr = clientes.slice(0, 10).map(c => `
-          <tr>
-            <td>${c.nome}</td>
-            <td>${c.whatsapp || '-'}</td>
-            <td>${c.email || '-'}</td>
-            <td>${c.plataforma_vendas || c.origem || '-'}</td>
-            <td><button class="btn btn-small">Ver</button></td>
-          </tr>
-        `).join('');
-
-        document.getElementById('clientesList').innerHTML = clientesTr ||
-          '<tr><td colspan="5">Nenhum cliente cadastrado</td></tr>';
-
-        // Lista pedidos
-        const pedidosTr = pedidos.slice(0, 10).map(p => `
-          <tr>
-            <td>${p.numero_pedido}<br><small style="color:#888">${p.plataforma || ''}${p.itens_nomes ? ' · ' + p.itens_nomes : ''}</small></td>
-            <td>${p.cliente_nome || 'Cliente'}</td>
-            <td>R$ ${parseFloat(p.valor_total).toFixed(2)}</td>
-            <td><span class="status-${p.status}">${p.status}</span></td>
-            <td>${new Date(p.data_pedido || p.criado_em).toLocaleDateString('pt-BR')}</td>
-            <td><button class="btn btn-small">Ver</button></td>
-          </tr>
-        `).join('');
-
-        document.getElementById('pedidosList').innerHTML = pedidosTr ||
-          '<tr><td colspan="6">Nenhum pedido registrado</td></tr>';
-
-        document.getElementById('pedidosHoje').textContent =
-          pedidos?.filter(p => new Date(p.data_pedido || p.criado_em).toDateString() === new Date().toDateString())?.length || 0;
-
-      } catch (err) {
-        console.error('Erro ao carregar dashboard:', err);
-      }
-    }
-
-    // Formulário novo cliente
-    document.getElementById('novoClienteForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const dados = Object.fromEntries(formData);
-
-      try {
-        const res = await fetch(`${API_URL}/api/empresas/${EMPRESA_ID}/clientes`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dados)
-        });
-
-        if (res.ok) {
-          alert('✅ Cliente adicionado com sucesso!');
-          e.target.reset();
-          carregarDashboard();
-        } else {
-          alert('❌ Erro ao adicionar cliente');
-        }
-      } catch (err) {
-        alert('❌ Erro: ' + err.message);
-      }
-    });
-
-    // Carrega ao abrir
-    carregarDashboard();
-    setInterval(carregarDashboard, 30000); // Atualiza a cada 30s
-  </script>
+<script src="/base.js"></script>
+<script>
+(function(){ const h=new Date().getHours(); document.getElementById("ola").textContent = h<12?"Bom dia":h<18?"Boa tarde":"Boa noite"; })();
+async function sair(){ await api("/api/sair",{method:"POST"}); location.href="/login.html"; }
+(async () => {
+  try {
+    const r = await api("/api/painel/resumo");
+    document.getElementById("kV").textContent = r.vendas_mes;
+    document.getElementById("kVs").textContent = dinheiro(r.valor_mes);
+    document.getElementById("kE").textContent = r.a_enviar;
+    document.getElementById("kP").textContent = r.pecas_disponiveis;
+    document.getElementById("kPs").textContent = "de " + r.pecas_total + " cadastradas";
+    document.getElementById("kC").textContent = r.clientes;
+    document.getElementById("dML").className = "dot " + (r.mercado_livre ? "on" : "off");
+    document.getElementById("tML").textContent = r.mercado_livre ? "Mercado Livre conectado" : "Mercado Livre desconectado";
+  } catch (e) { if (e.message !== "login") avisar("Não consegui carregar os números: " + e.message); }
+})();
+</script>
 </body>
 </html>

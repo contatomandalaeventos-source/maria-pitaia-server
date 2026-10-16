@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peças e estoque — Maria Pitaia</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/painel.css">
+<style>
+.qtd{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.qtd button{width:34px;height:32px;border:0;background:#fff;color:var(--terra);font:700 18px 'Barlow',sans-serif;cursor:pointer}
+.qtd button:hover{background:var(--bg)}
+.qtd span{min-width:34px;text-align:center;font-weight:700}
+.esgot{opacity:.6}
+</style>
+</head>
+<body>
+<main>
+  <div class="kpis">
+    <div class="kpi"><div class="r">Disponíveis</div><div class="v" id="kD">-</div><div class="s">com estoque</div></div>
+    <div class="kpi"><div class="r">Esgotadas</div><div class="v" id="kZ">-</div><div class="s">estoque zero</div></div>
+    <div class="kpi"><div class="r">No Mercado Livre</div><div class="v" id="kM">-</div><div class="s">anúncios publicados</div></div>
+    <div class="kpi"><div class="r">Valor em estoque</div><div class="v" id="kV">-</div><div class="s">a preço de venda</div></div>
+  </div>
+  <div class="barra"><input class="busca" id="busca" placeholder="Buscar peça pelo nome ou código"></div>
+  <div class="barra filtros" id="filtros"></div>
+  <div class="caixa" id="lista"><div class="vazio">Carregando…</div></div>
+  <p style="font-size:13px;color:var(--dim);margin-top:12px">Ao mudar a quantidade aqui, o anúncio do Mercado Livre acompanha: com zero ele é pausado e, ao voltar a ter estoque, é reativado. O TikTok ainda precisa ser ajustado lá no TikTok Shop.</p>
+</main>
+<script src="/base.js"></script>
+<script>
+topo("Peças e estoque");
+let PECAS = [], filtro = "Todas";
+const FILTROS = ["Todas", "Disponíveis", "Esgotadas"];
+
+function desenhar() {
+  document.getElementById("filtros").innerHTML = FILTROS.map(f =>
+    `<button class="filtro ${f === filtro ? "on" : ""}" onclick="filtro='${f}';desenhar()">${f}</button>`).join("");
+  const b = document.getElementById("busca").value.toLowerCase();
+  const lista = PECAS.filter(p => filtro === "Todas" || (filtro === "Disponíveis" ? p.estoque > 0 : p.estoque <= 0))
+    .filter(p => !b || (p.nome + " " + (p.sku || "")).toLowerCase().includes(b));
+  document.getElementById("lista").innerHTML = lista.map(p => {
+    const ml = p.publicacoes_json?.mercado_livre;
+    return `<div class="linha ${p.estoque <= 0 ? "esgot" : ""}">
+      <img class="foto" src="${esc(p.imagem_url || "")}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+      <div class="meio">
+        <div class="t">${esc(p.nome)}</div>
+        <div class="sub">${esc(p.sku || "")} · ${dinheiro(p.preco)}
+          ${ml?.url ? ` · <a href="${esc(ml.url)}" target="_blank" rel="noopener">ver no Mercado Livre</a>` : " · fora do Mercado Livre"}</div>
+      </div>
+      <div class="dir">
+        <span class="qtd"><button onclick="ajustar(${p.id},-1)" aria-label="Tirar um">−</button><span>${p.estoque}</span><button onclick="ajustar(${p.id},1)" aria-label="Pôr um">+</button></span>
+        <span class="selo ${p.estoque > 0 ? "s-entregue" : "s-cancelado"}">${p.estoque > 0 ? "Disponível" : "Esgotada"}</span>
+      </div>
+    </div>`;
+  }).join("") || `<div class="vazio">Nenhuma peça encontrada.</div>`;
+}
+
+function numeros() {
+  document.getElementById("kD").textContent = PECAS.filter(p => p.estoque > 0).length;
+  document.getElementById("kZ").textContent = PECAS.filter(p => p.estoque <= 0).length;
+  document.getElementById("kM").textContent = PECAS.filter(p => p.publicacoes_json?.mercado_livre?.id).length;
+  document.getElementById("kV").textContent = dinheiro(PECAS.reduce((s, p) => s + Math.max(0, p.estoque) * Number(p.preco), 0));
+}
+
+async function carregar() {
+  PECAS = (await api(`/api/empresas/${EMPRESA_ID}/produtos`)).map(p => ({ ...p, estoque: Number(p.estoque) || 0 }));
+  numeros(); desenhar();
+}
+
+async function ajustar(id, delta) {
+  const p = PECAS.find(x => x.id === id); if (!p) return;
+  const novo = Math.max(0, p.estoque + delta);
+  if (novo === p.estoque) return;
+  try {
+    const r = await api(`/api/painel/produtos/${id}/estoque`, { method: "PATCH", body: { estoque: novo } });
+    p.estoque = novo; numeros(); desenhar();
+    if (r.mercado_livre?.acao === "pausado") avisar("Estoque zerado: anúncio pausado no Mercado Livre.");
+    else if (r.mercado_livre?.acao === "ativo") avisar(`Mercado Livre atualizado: ${novo} em estoque.`);
+    else if (r.mercado_livre?.ok === false && r.mercado_livre.motivo !== "sem anúncio no Mercado Livre") avisar("Estoque salvo, mas o Mercado Livre não aceitou: " + r.mercado_livre.motivo, 6000);
+    else avisar("Estoque salvo.");
+  } catch (e) { avisar(e.message); }
+}
+
+document.getElementById("busca").oninput = desenhar;
+carregar().catch(e => { if (e.message !== "login") avisar(e.message); });
+</script>
+</body>
+</html>

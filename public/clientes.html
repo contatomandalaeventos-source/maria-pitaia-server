@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clientes — Maria Pitaia</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/painel.css">
+</head>
+<body>
+<main>
+  <div class="kpis">
+    <div class="kpi"><div class="r">Clientes</div><div class="v" id="kC">-</div><div class="s">no total</div></div>
+    <div class="kpi"><div class="r">Compraram mais de 1 vez</div><div class="v" id="kR">-</div><div class="s">clientes que voltaram</div></div>
+    <div class="kpi"><div class="r">Mercado Livre</div><div class="v" id="kM">-</div><div class="s">clientes</div></div>
+    <div class="kpi"><div class="r">Outros canais</div><div class="v" id="kO">-</div><div class="s">grupo, site, WhatsApp</div></div>
+  </div>
+  <div class="barra"><input class="busca" id="busca" placeholder="Buscar cliente pelo nome ou WhatsApp"></div>
+  <div class="caixa" id="lista"><div class="vazio">Carregando…</div></div>
+</main>
+<script src="/base.js"></script>
+<script>
+topo("Clientes");
+let CLI = [], PED = [];
+function desenhar() {
+  const b = document.getElementById("busca").value.toLowerCase();
+  const lista = CLI.filter(c => !b || [c.nome, c.whatsapp, c.email].join(" ").toLowerCase().includes(b));
+  document.getElementById("lista").innerHTML = lista.map(c => {
+    const ps = PED.filter(p => p.cliente_id === c.id && p.status !== "cancelado");
+    const total = ps.reduce((s, p) => s + Number(p.valor_total), 0);
+    const zap = String(c.whatsapp || "").replace(/\D/g, "");
+    return `<div class="linha">
+      <div class="meio">
+        <div class="t">${esc(c.nome)}</div>
+        <div class="sub">${esc(c.plataforma_vendas || c.origem || "-")}${c.notas ? " · " + esc(c.notas) : ""} · cliente desde ${dataBR(c.criado_em)}</div>
+        <div class="sub" style="margin-top:3px">${ps.map(p => esc(p.itens_nomes || p.numero_pedido)).join(" · ") || "Sem pedidos"}</div>
+      </div>
+      <div class="dir">
+        <span class="valor">${dinheiro(total)}</span>
+        <span>${ps.length} pedido${ps.length === 1 ? "" : "s"}
+        ${zap ? ` · <a class="btn peq" href="https://wa.me/${zap.length <= 11 ? "55" + zap : zap}" target="_blank" rel="noopener">WhatsApp</a>` : ""}</span>
+      </div>
+    </div>`;
+  }).join("") || `<div class="vazio">Ainda não há clientes. Eles entram sozinhos a cada venda do Mercado Livre ou quando você registra uma venda.</div>`;
+}
+(async () => {
+  try {
+    [CLI, PED] = await Promise.all([api(`/api/empresas/${EMPRESA_ID}/clientes`), api(`/api/empresas/${EMPRESA_ID}/pedidos`)]);
+    const qtd = id => PED.filter(p => p.cliente_id === id && p.status !== "cancelado").length;
+    document.getElementById("kC").textContent = CLI.length;
+    document.getElementById("kR").textContent = CLI.filter(c => qtd(c.id) > 1).length;
+    document.getElementById("kM").textContent = CLI.filter(c => (c.plataforma_vendas || c.origem) === "Mercado Livre").length;
+    document.getElementById("kO").textContent = CLI.filter(c => (c.plataforma_vendas || c.origem) !== "Mercado Livre").length;
+    desenhar();
+  } catch (e) { if (e.message !== "login") avisar(e.message); }
+})();
+document.getElementById("busca").oninput = desenhar;
+</script>
+</body>
+</html>

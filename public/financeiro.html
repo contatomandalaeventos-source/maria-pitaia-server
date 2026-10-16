@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financeiro — Maria Pitaia</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/painel.css">
+<style>.entrada{color:var(--verde)}.saida{color:var(--rosa)}</style>
+</head>
+<body>
+<main>
+  <div class="kpis">
+    <div class="kpi"><div class="r">Entrou no mês</div><div class="v entrada" id="kE">-</div><div class="s">vendas recebidas</div></div>
+    <div class="kpi"><div class="r">Saiu no mês</div><div class="v saida" id="kS">-</div><div class="s">gastos lançados</div></div>
+    <div class="kpi"><div class="r">Resultado do mês</div><div class="v" id="kR">-</div><div class="s">entradas − saídas</div></div>
+    <div class="kpi"><div class="r">A receber</div><div class="v" id="kA">-</div><div class="s">Mercado Livre ainda não liberou</div></div>
+  </div>
+  <div class="barra">
+    <span class="filtros" id="filtros"></span><span style="flex:1"></span>
+    <button class="btn sec" onclick="novo('saida')">− Lançar gasto</button>
+    <button class="btn" onclick="novo('entrada')">+ Lançar entrada</button>
+  </div>
+  <div class="caixa" id="lista"><div class="vazio">Carregando…</div></div>
+  <p style="font-size:13px;color:var(--dim);margin-top:12px">As vendas do Mercado Livre entram como "a receber". Quando o dinheiro cair no Mercado Pago, toque em "Recebido". Os valores são o total da venda, antes da tarifa e do frete do Mercado Livre.</p>
+</main>
+
+<div class="fundo" id="jLanc">
+  <div class="janela">
+    <h2 id="jT">Lançar</h2>
+    <div class="campo"><label>Descrição</label><input id="lDesc" placeholder="Ex.: cartelas, ferragens, embalagens"></div>
+    <div class="duas">
+      <div class="campo"><label>Valor (R$)</label><input id="lValor" inputmode="decimal"></div>
+      <div class="campo"><label>Data</label><input id="lData" type="date"></div>
+    </div>
+    <div class="acoes"><button class="btn sec" onclick="fechar('jLanc')">Cancelar</button><button class="btn" onclick="salvar()">Salvar</button></div>
+  </div>
+</div>
+
+<script src="/base.js"></script>
+<script>
+topo("Financeiro");
+let L = [], filtro = "Todos", tipoNovo = "entrada";
+const FILTROS = ["Todos", "A receber", "Entradas", "Saídas"];
+const doMes = l => { const d = new Date(l.data_transacao || l.criado_em); const h = new Date(); return d.getMonth() === h.getMonth() && d.getFullYear() === h.getFullYear(); };
+
+function desenhar() {
+  document.getElementById("filtros").innerHTML = FILTROS.map(f =>
+    `<button class="filtro ${f === filtro ? "on" : ""}" onclick="filtro='${f}';desenhar()">${f}</button>`).join(" ");
+  const lista = L.filter(l => filtro === "Todos" || (filtro === "A receber" ? l.status === "pendente" : filtro === "Entradas" ? l.tipo === "entrada" : l.tipo === "saida"));
+  document.getElementById("lista").innerHTML = lista.map(l => `<div class="linha">
+      <div class="meio">
+        <div class="t">${esc(l.descricao || (l.tipo === "entrada" ? "Entrada" : "Gasto"))}</div>
+        <div class="sub">${dataBR(l.data_transacao || l.criado_em)}${l.plataforma ? " · " + esc(l.plataforma) : ""}${l.forma_pagamento ? " · " + esc(l.forma_pagamento) : ""}</div>
+      </div>
+      <div class="dir">
+        <span class="valor ${l.tipo}">${l.tipo === "saida" ? "− " : ""}${dinheiro(l.valor)}</span>
+        <span>${l.status === "pendente" ? `<span class="selo s-pago">A receber</span> <button class="btn peq" onclick="receber(${l.id})">Recebido</button>`
+          : l.status === "cancelado" ? `<span class="selo s-cancelado">Cancelado</span>` : `<span class="selo s-entregue">${l.tipo === "saida" ? "Pago" : "Recebido"}</span>`}</span>
+      </div>
+    </div>`).join("") || `<div class="vazio">Nenhum lançamento ainda.</div>`;
+}
+
+async function carregar() {
+  L = await api("/api/painel/financeiro");
+  const mes = L.filter(doMes).filter(l => l.status !== "cancelado");
+  const ent = mes.filter(l => l.tipo === "entrada" && l.status === "recebido").reduce((s, l) => s + Number(l.valor), 0);
+  const sai = mes.filter(l => l.tipo === "saida").reduce((s, l) => s + Number(l.valor), 0);
+  document.getElementById("kE").textContent = dinheiro(ent);
+  document.getElementById("kS").textContent = dinheiro(sai);
+  document.getElementById("kR").textContent = dinheiro(ent - sai);
+  document.getElementById("kA").textContent = dinheiro(L.filter(l => l.status === "pendente").reduce((s, l) => s + Number(l.valor), 0));
+  desenhar();
+}
+async function receber(id) {
+  try { await api(`/api/painel/financeiro/${id}`, { method: "PATCH", body: { status: "recebido" } }); avisar("Marcado como recebido"); carregar(); }
+  catch (e) { avisar(e.message); }
+}
+function novo(tipo) {
+  tipoNovo = tipo;
+  document.getElementById("jT").textContent = tipo === "entrada" ? "Lançar entrada" : "Lançar gasto";
+  document.getElementById("lDesc").value = ""; document.getElementById("lValor").value = "";
+  document.getElementById("lData").value = new Date().toISOString().slice(0, 10);
+  abrir("jLanc");
+}
+async function salvar() {
+  const valor = Number(document.getElementById("lValor").value.replace(/\./g, "").replace(",", "."));
+  if (!valor) return avisar("Coloque o valor");
+  try {
+    await api("/api/painel/financeiro", { method: "POST", body: { tipo: tipoNovo, descricao: document.getElementById("lDesc").value, valor, data: document.getElementById("lData").value } });
+    fechar("jLanc"); avisar("Lançamento salvo"); carregar();
+  } catch (e) { avisar(e.message); }
+}
+carregar().catch(e => { if (e.message !== "login") avisar(e.message); });
+</script>
+</body>
+</html>

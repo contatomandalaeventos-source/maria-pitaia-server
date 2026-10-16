@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedidos — Maria Pitaia</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/painel.css">
+</head>
+<body>
+<main>
+  <div class="kpis">
+    <div class="kpi"><div class="r">A enviar</div><div class="v" id="kE">-</div><div class="s">pagos, falta despachar</div></div>
+    <div class="kpi"><div class="r">Enviados</div><div class="v" id="kN">-</div><div class="s">a caminho</div></div>
+    <div class="kpi"><div class="r">Vendas no mês</div><div class="v" id="kM">-</div><div class="s" id="kMs">&nbsp;</div></div>
+    <div class="kpi"><div class="r">Total de pedidos</div><div class="v" id="kT">-</div><div class="s">desde o início</div></div>
+  </div>
+
+  <div class="barra">
+    <input class="busca" id="busca" placeholder="Buscar por cliente, peça ou número">
+    <button class="btn" onclick="novaVenda()">+ Registrar venda</button>
+  </div>
+  <div class="barra filtros" id="filtros"></div>
+  <div class="caixa" id="lista"><div class="vazio">Carregando…</div></div>
+</main>
+
+<div class="fundo" id="jVenda">
+  <div class="janela">
+    <h2>Registrar venda</h2>
+    <p class="sub" style="color:var(--dim);font-size:13.5px;margin:-6px 0 14px">Para vendas fora do Mercado Livre: grupo do condomínio, site, WhatsApp ou pessoalmente. A peça sai do estoque e, se acabar, o anúncio do Mercado Livre é pausado sozinho.</p>
+    <div class="campo"><label>Peça vendida</label><select id="vPeca"></select></div>
+    <div class="duas">
+      <div class="campo"><label>Por onde vendeu</label>
+        <select id="vCanal"><option>Grupo do condomínio</option><option>WhatsApp</option><option>Site</option><option>Instagram</option><option>Pessoalmente</option><option>Outro</option></select></div>
+      <div class="campo"><label>Valor (R$)</label><input id="vValor" inputmode="decimal"></div>
+    </div>
+    <div class="duas">
+      <div class="campo"><label>Nome do cliente</label><input id="vNome"></div>
+      <div class="campo"><label>WhatsApp (opcional)</label><input id="vZap" inputmode="tel" placeholder="(11) 9...."></div>
+    </div>
+    <div class="duas">
+      <div class="campo"><label>Pagamento</label>
+        <select id="vPag"><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>A combinar</option></select></div>
+      <div class="campo"><label>Observação (opcional)</label><input id="vObs" placeholder="Ex.: entregar no bloco B"></div>
+    </div>
+    <div class="acoes"><button class="btn sec" onclick="fechar('jVenda')">Cancelar</button><button class="btn" id="vSalvar" onclick="salvarVenda()">Salvar venda</button></div>
+  </div>
+</div>
+
+<script src="/base.js"></script>
+<script>
+topo("Pedidos");
+let PEDIDOS = [], PECAS = [], filtro = "Todos";
+const FILTROS = ["Todos", "A enviar", "Enviados", "Entregues", "Mercado Livre", "Outros canais", "Cancelados"];
+
+function passa(p) {
+  switch (filtro) {
+    case "A enviar": return ["pago", "novo"].includes(p.status);
+    case "Enviados": return p.status === "enviado";
+    case "Entregues": return p.status === "entregue";
+    case "Mercado Livre": return p.plataforma === "Mercado Livre";
+    case "Outros canais": return p.plataforma !== "Mercado Livre";
+    case "Cancelados": return p.status === "cancelado";
+  }
+  return true;
+}
+
+function desenhar() {
+  document.getElementById("filtros").innerHTML = FILTROS.map(f =>
+    `<button class="filtro ${f === filtro ? "on" : ""}" onclick="filtro='${f}';desenhar()">${f}</button>`).join("");
+  const b = document.getElementById("busca").value.toLowerCase();
+  const lista = PEDIDOS.filter(passa).filter(p =>
+    !b || [p.cliente_nome, p.itens_nomes, p.numero_pedido].join(" ").toLowerCase().includes(b));
+  const el = document.getElementById("lista");
+  if (!lista.length) { el.innerHTML = `<div class="vazio">Nenhum pedido aqui ainda. Quando sair uma venda no Mercado Livre, ela aparece sozinha nesta tela.</div>`; return; }
+  el.innerHTML = lista.map(p => {
+    const prox = { pago: ["enviado", "Marcar enviado"], novo: ["enviado", "Marcar enviado"], enviado: ["entregue", "Marcar entregue"] }[p.status];
+    const linkML = p.plataforma === "Mercado Livre" ? ` · <a href="https://www.mercadolivre.com.br/vendas/${esc(String(p.numero_pedido).replace("ML-", ""))}/detalhe" target="_blank" rel="noopener">ver no ML</a>` : "";
+    return `<div class="linha">
+      <div class="meio">
+        <div class="t">${esc(p.itens_nomes || "Pedido")}</div>
+        <div class="sub">${esc(p.cliente_nome || "Cliente")} ${p.whatsapp ? "· " + esc(p.whatsapp) : ""} · ${dataBR(p.data_pedido || p.criado_em)} · ${esc(p.numero_pedido)}${linkML}</div>
+        <div style="margin-top:6px"><span class="selo canal">${esc(p.plataforma || "-")}</span> <span class="selo ${STATUS_CLASSE(p.status)}">${esc(STATUS_NOME(p.status))}</span></div>
+      </div>
+      <div class="dir">
+        <span class="valor">${dinheiro(p.valor_total)}</span>
+        <span>${prox ? `<button class="btn peq" onclick="mudar(${p.id},'${prox[0]}')">${prox[1]}</button>` : ""}
+        ${!["cancelado", "entregue"].includes(p.status) ? `<button class="btn sec peq" onclick="cancelar(${p.id})">Cancelar</button>` : ""}</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function carregar() {
+  PEDIDOS = await api(`/api/empresas/${EMPRESA_ID}/pedidos`);
+  const mes = PEDIDOS.filter(p => p.status !== "cancelado" && new Date(p.data_pedido || p.criado_em).getMonth() === new Date().getMonth() && new Date(p.data_pedido || p.criado_em).getFullYear() === new Date().getFullYear());
+  document.getElementById("kE").textContent = PEDIDOS.filter(p => ["pago", "novo"].includes(p.status)).length;
+  document.getElementById("kN").textContent = PEDIDOS.filter(p => p.status === "enviado").length;
+  document.getElementById("kM").textContent = mes.length;
+  document.getElementById("kMs").textContent = dinheiro(mes.reduce((s, p) => s + Number(p.valor_total), 0));
+  document.getElementById("kT").textContent = PEDIDOS.length;
+  desenhar();
+}
+
+async function mudar(id, status) {
+  try { await api(`/api/painel/pedidos/${id}/status`, { method: "PATCH", body: { status } }); avisar("Pedido atualizado"); carregar(); }
+  catch (e) { avisar(e.message); }
+}
+async function cancelar(id) {
+  if (!confirm("Cancelar este pedido? A peça volta para o estoque do sistema.")) return;
+  mudar(id, "cancelado");
+}
+
+async function novaVenda() {
+  if (!PECAS.length) PECAS = await api(`/api/empresas/${EMPRESA_ID}/produtos`);
+  const disp = PECAS.filter(p => Number(p.estoque) > 0);
+  document.getElementById("vPeca").innerHTML = disp.map(p =>
+    `<option value="${p.id}" data-preco="${p.preco}">${esc(p.nome)} — ${dinheiro(p.preco)} (${p.estoque} em estoque)</option>`).join("") ||
+    `<option value="">Nenhuma peça com estoque</option>`;
+  const atualizaPreco = () => { const o = document.getElementById("vPeca").selectedOptions[0]; document.getElementById("vValor").value = o?.dataset.preco ? Number(o.dataset.preco).toFixed(2).replace(".", ",") : ""; };
+  document.getElementById("vPeca").onchange = atualizaPreco; atualizaPreco();
+  ["vNome", "vZap", "vObs"].forEach(i => document.getElementById(i).value = "");
+  abrir("jVenda");
+}
+
+async function salvarVenda() {
+  const corpo = {
+    produto_id: document.getElementById("vPeca").value,
+    canal: document.getElementById("vCanal").value,
+    valor: Number(document.getElementById("vValor").value.replace(/\./g, "").replace(",", ".")),
+    cliente_nome: document.getElementById("vNome").value.trim(),
+    whatsapp: document.getElementById("vZap").value,
+    pagamento: document.getElementById("vPag").value,
+    observacoes: document.getElementById("vObs").value
+  };
+  if (!corpo.produto_id) return avisar("Escolha a peça");
+  if (!corpo.cliente_nome) return avisar("Coloque o nome do cliente");
+  const b = document.getElementById("vSalvar"); b.disabled = true;
+  try {
+    const r = await api("/api/painel/venda-manual", { method: "POST", body: corpo });
+    fechar("jVenda"); PECAS = [];
+    let msg = "Venda registrada.";
+    if (r.mercado_livre?.acao === "pausado") msg += " O anúncio no Mercado Livre foi pausado.";
+    else if (r.mercado_livre?.ok === false && r.mercado_livre.motivo !== "sem anúncio no Mercado Livre") msg += " Atenção: pause a peça no Mercado Livre (" + r.mercado_livre.motivo + ").";
+    msg += " Lembre de pausar no TikTok.";
+    avisar(msg, 7000); carregar();
+  } catch (e) { avisar(e.message); }
+  b.disabled = false;
+}
+
+document.getElementById("busca").oninput = desenhar;
+carregar().then(() => { if (location.hash === "#nova") novaVenda(); }).catch(e => { if (e.message !== "login") avisar(e.message); });
+</script>
+</body>
+</html>

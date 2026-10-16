@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar — Maria Pitaia</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/painel.css">
+<style>
+body{display:flex;align-items:center;justify-content:center;padding:20px}
+.cx{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:30px 26px;width:100%;max-width:380px;text-align:center}
+.cx img{width:220px;max-width:80%;margin:0 auto 18px;display:block}
+.cx h1{font-family:'Barlow Condensed',sans-serif;font-size:22px;margin-bottom:16px}
+.cx .btn{width:100%;justify-content:center;margin-top:12px}
+.erro{color:var(--rosa);font-size:14px;margin-top:10px;min-height:20px}
+</style>
+</head>
+<body>
+<form class="cx" id="f">
+  <img src="https://www.mariapitaia.com.br/imagens/logo.webp" alt="Maria Pitaia Criações" onerror="this.remove()">
+  <h1>Painel de vendas</h1>
+  <input type="password" id="senha" placeholder="Senha do painel" autocomplete="current-password" required>
+  <button class="btn" type="submit">Entrar</button>
+  <div class="erro" id="erro"></div>
+</form>
+<script>
+document.getElementById("f").onsubmit = async e => {
+  e.preventDefault();
+  const r = await fetch("/api/login", { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ senha: document.getElementById("senha").value }) });
+  if (r.ok) location.href = "/"; else document.getElementById("erro").textContent = "Senha incorreta";
+};
+</script>
+</body>
+</html>
