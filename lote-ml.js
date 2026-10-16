@@ -65,13 +65,15 @@ async function montarAtributos(categoria) {
   for (const a of obrigatorios) {
     if (a.id === "BRAND") fixos.push({ id: "BRAND", value_name: MARCA });
     else if (a.id === "MODEL") fixos.push({ id: "MODEL", value_name: "__MODELO__" });
-    else if (a.id === "GTIN") {
-      if (temGtinVazio) {
-        const v = escolherValor(temGtinVazio, ["não tem", "nao tem", "sem código", "artesanal"]) ||
+    else if (a.id === "GTIN" || a.id === "EMPTY_GTIN_REASON") {
+      if (temGtinVazio && !fixos.some(f => f.id === "EMPTY_GTIN_REASON")) {
+        const v = escolherValor(temGtinVazio, ["artesanal", "não tem", "nao tem"]) ||
                   (temGtinVazio.values?.[0] && { id: "EMPTY_GTIN_REASON", value_id: temGtinVazio.values[0].id });
         if (v) fixos.push(v);
       }
     }
+    else if (a.id === "MATERIAL") fixos.push({ id: "MATERIAL", value_name: "Cerâmica plástica" });
+    else if (a.id === "WITH_GEMSTONE") { const v = escolherValor(a, ["não", "nao"]); if (v) fixos.push(v); }
     else if (a.id === "GENDER") { const v = escolherValor(a, ["mulher", "feminino"]); if (v) fixos.push(v); }
     else if (a.id === "ITEM_CONDITION") { const v = escolherValor(a, ["novo"]); if (v) fixos.push(v); }
     else if (a.values && a.values.length) {
@@ -103,7 +105,7 @@ function corpoDoItem(produto, categoria, atributos) {
     listing_type_id: process.env.ML_TIPO_ANUNCIO || "gold_special",
     pictures: fotos,
     attributes: attrs,
-    shipping: { mode: "me2", local_pick_up: false, free_shipping: false }
+    shipping: { mode: process.env.ML_ENVIO || "me2", local_pick_up: false, free_shipping: false }
   };
 }
 
