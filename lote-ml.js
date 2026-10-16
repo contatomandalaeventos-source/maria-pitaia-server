@@ -105,13 +105,13 @@ function corpoDoItem(produto, categoria, atributos) {
     listing_type_id: process.env.ML_TIPO_ANUNCIO || "gold_special",
     pictures: fotos,
     attributes: attrs,
-    shipping: { mode: process.env.ML_ENVIO || "me2", local_pick_up: false, free_shipping: false }
+    ...(process.env.ML_ENVIO ? { shipping: { mode: process.env.ML_ENVIO, local_pick_up: false, free_shipping: false } } : {})
   };
 }
 
 function erroML(err) {
   const d = err.response?.data;
-  const causas = (d?.cause || []).map(c => `${c.code || ""} ${c.message}`).join(" | ");
+  const causas = (d?.cause || []).map(c => `[${c.type || "?"}] ${c.code || ""} ${c.message}`).join(" | ");
   return causas || d?.message || err.message;
 }
 
@@ -163,7 +163,12 @@ async function rodar() {
     )).rows;
 
     let ok = 0, falha = 0, pulado = 0;
+    const limite = Number(process.env.ML_LIMITE || 0);
+    let feitos = 0;
     for (const p of prods) {
+      if (limite && feitos >= limite) break;
+      if ((process.env.ML_PULAR || "").split(",").includes(p.sku)) { pulado++; continue; }
+      feitos++;
       const pub = p.publicacoes_json || {};
       if (modo === "publicar" && pub.mercado_livre?.id) { pulado++; continue; }
       const corpo = corpoDoItem(p, categoria, atributos);
